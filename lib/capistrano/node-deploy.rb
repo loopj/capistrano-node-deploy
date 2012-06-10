@@ -68,7 +68,7 @@ Capistrano::Configuration.instance(:must_exist).load do |configuration|
 
     desc "Restart the node application"
     task :restart do
-      sudo "restart #{application}"
+      sudo "restart #{application} || sudo start #{application}"
     end
   end
 end
