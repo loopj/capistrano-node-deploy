@@ -24,10 +24,10 @@ Gem::Specification.new do |s|
     "README.md",
     "Rakefile",
     "VERSION",
+    "capistrano-node-deploy.gemspec",
     "lib/capistrano-node-deploy.rb",
     "lib/capistrano/node-deploy.rb",
-    "test/helper.rb",
-    "test/test_capistrano-node-deploy.rb"
+    "test/helper.rb"
   ]
   s.homepage = "http://github.com/loopj/capistrano-node-deploy"
   s.licenses = ["MIT"]
