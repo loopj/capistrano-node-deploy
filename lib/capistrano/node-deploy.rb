@@ -1,4 +1,5 @@
 require "railsless-deploy"
+require "multi_json"
 
 UPSTART_TEMPLATE = <<EOD
 #!upstart
@@ -25,8 +26,11 @@ Capistrano::Configuration.instance(:must_exist).load do |configuration|
   after "deploy:symlink", "node:install_packages"
   after "deploy:symlink", "node:restart"
 
+  package_json = MultiJson.load(File.open("package.json").read) rescue {}
+
+  set :application, package_json["name"] unless defined? application
+  set :app_command, package_json["main"] || "index.js" unless defined? app_command
   set :node_binary, "/usr/bin/node" unless defined? node_binary
-  set :app_command, "index.js" unless defined? app_command
 
   namespace :node do
     desc "Check required packages and install if packages are not installed"
