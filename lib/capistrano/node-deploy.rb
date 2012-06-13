@@ -37,7 +37,7 @@ Capistrano::Configuration.instance(:must_exist).load do |configuration|
     task :install_packages do
       run "mkdir -p #{shared_path}/node_modules"
       run "cp #{current_path}/package.json #{shared_path}"
-      run "cd #{shared_path}/node_modules && npm install"
+      run "cd #{shared_path} && npm install"
       run "ln -s #{shared_path}/node_modules #{current_path}/node_modules"
     end
 
