@@ -22,6 +22,7 @@ def remote_file_exists?(full_path)
 end
 
 Capistrano::Configuration.instance(:must_exist).load do |configuration|
+  before "deploy", "deploy:create_release_dir"
   before "deploy", "node:create_upstart_config"
   after "deploy:symlink", "node:install_packages"
   after "deploy:symlink", "node:restart"
@@ -69,6 +70,14 @@ Capistrano::Configuration.instance(:must_exist).load do |configuration|
     desc "Restart the node application"
     task :restart do
       sudo "restart #{application} || sudo start #{application}"
+    end
+  end
+
+  namespace :deploy do
+    task :create_release_dir, :except => {:no_release => true} do
+      mkdir_releases = "mkdir -p #{fetch :releases_path}"
+      mkdir_commands = ["log", "pids"].map {|dir| "mkdir -p #{shared_path}/#{dir}"}
+      run mkdir_commands.unshift(mkdir_releases).join(" && ")
     end
   end
 end
