@@ -6,7 +6,7 @@ UPSTART_TEMPLATE = <<EOD
 description "{{application}} node app"
 author      "capistrano"
 
-start on startup
+start on (filesystem and net-device-up IFACE=lo)
 stop on shutdown
 
 respawn
