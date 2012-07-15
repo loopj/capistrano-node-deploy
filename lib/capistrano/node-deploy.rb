@@ -23,7 +23,7 @@ end
 
 Capistrano::Configuration.instance(:must_exist).load do |configuration|
   before "deploy", "deploy:create_release_dir"
-  before "deploy", "node:create_upstart_config"
+  before "deploy", "node:check_upstart_config"
   after "deploy:symlink", "node:install_packages"
   after "deploy:symlink", "node:restart"
 
@@ -42,19 +42,21 @@ Capistrano::Configuration.instance(:must_exist).load do |configuration|
       run "ln -s #{shared_path}/node_modules #{current_path}/node_modules"
     end
 
+    task :check_upstart_config do
+      create_upstart_config unless remote_file_exists?("/etc/init/#{application}.conf")
+    end
+
     desc "Create upstart script for this node app"
     task :create_upstart_config do
       config_file_path = "/etc/init/#{application}.conf"
-      if ENV["FORCE_UPSTART_CREATE"] || !remote_file_exists?(config_file_path)
-        temp_config_file_path = "#{shared_path}/#{application}.conf"
+      temp_config_file_path = "#{shared_path}/#{application}.conf"
 
-        # Generate and upload the upstart script
-        put UPSTART_TEMPLATE.gsub(/\{\{(.*?)\}\}/) { eval($1) }, temp_config_file_path
+      # Generate and upload the upstart script
+      put UPSTART_TEMPLATE.gsub(/\{\{(.*?)\}\}/) { eval($1) }, temp_config_file_path
 
-        # Copy the script into place and make executable
-        sudo "cp #{temp_config_file_path} #{config_file_path}"
-        sudo "chmod +x #{config_file_path}"
-      end
+      # Copy the script into place and make executable
+      sudo "cp #{temp_config_file_path} #{config_file_path}"
+      sudo "chmod +x #{config_file_path}"
     end
 
     desc "Start the node application"
