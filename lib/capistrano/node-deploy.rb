@@ -13,7 +13,7 @@ respawn
 respawn limit 99 5
 
 script
-    exec sudo -u {{user}} NODE_ENV=production {{node_binary}} {{current_path}}/{{app_command}} 2>&1 >> {{shared_path}}/{{application}}.log
+    exec su -c 'NODE_ENV=production {{node_binary}} {{current_path}}/{{app_command}}' deploy 2>&1 >> {{shared_path}}/{{application}}.log
 end script
 EOD
 
