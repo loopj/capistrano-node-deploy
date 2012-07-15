@@ -45,7 +45,7 @@ Capistrano::Configuration.instance(:must_exist).load do |configuration|
     desc "Create upstart script for this node app"
     task :create_upstart_config do
       config_file_path = "/etc/init/#{application}.conf"
-      unless remote_file_exists?(config_file_path)
+      if ENV["FORCE_UPSTART_CREATE"] || !remote_file_exists?(config_file_path)
         temp_config_file_path = "#{shared_path}/#{application}.conf"
 
         # Generate and upload the upstart script
