@@ -30,37 +30,41 @@ Now add the following to your `Capfile`
 Full Capfile Example
 --------------------
 
-    require "capistrano/node-deploy"
+```ruby
+require "capistrano/node-deploy"
 
-    set :application, "my-node-app-name"
-    set :repository,  "git@github.com:/loopj/my-node-app-name"
-    set :user, "deploy"
-    set :scm, :git
-    set :deploy_to, "/var/apps/my-app-folder"
+set :application, "my-node-app-name"
+set :repository,  "git@github.com:/loopj/my-node-app-name"
+set :user, "deploy"
+set :scm, :git
+set :deploy_to, "/var/apps/my-app-folder"
 
-    role :app, "myserver.com"
+role :app, "myserver.com"
+```
 
 
 Overriding Default Settings
 ---------------------------
 
-    # Set app command to run (defaults to index.js, or your `main` file from `package.json`)
-    set :app_command, "my_server.coffee"
+```ruby
+# Set app command to run (defaults to index.js, or your `main` file from `package.json`)
+set :app_command, "my_server.coffee"
 
-    # Set additional environment variables for the app
-    set :app_environment, "PORT=8080"
+# Set additional environment variables for the app
+set :app_environment, "PORT=8080"
 
-    # Set node binary to run (defaults to /usr/bin/node)
-    set :node_binary, "/usr/bin/coffee"
+# Set node binary to run (defaults to /usr/bin/node)
+set :node_binary, "/usr/bin/coffee"
     
-    # Set node environment (defaults to production)
-    set :node_env, "staging"
+# Set node environment (defaults to production)
+set :node_env, "staging"
     
-    # Set the user to run node as (defaults to deploy)
-    set :node_user, "james"
+# Set the user to run node as (defaults to deploy)
+set :node_user, "james"
 
-    # Set the name of the upstart command (defaults to #{application}-#{node_env})
-    set :upstart_job_name, "myserver"
+# Set the name of the upstart command (defaults to #{application}-#{node_env})
+set :upstart_job_name, "myserver"
+```
 
 
 Contributing to capistrano-node-deploy
