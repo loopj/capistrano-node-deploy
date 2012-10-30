@@ -47,6 +47,9 @@ Overriding Default Settings
     # Set app command to run (defaults to index.js, or your `main` file from `package.json`)
     set :app_command, "my_server.coffee"
 
+    # Set additional environment variables for the app
+    set :app_environment, "PORT=8080"
+
     # Set node binary to run (defaults to /usr/bin/node)
     set :node_binary, "/usr/bin/coffee"
     
