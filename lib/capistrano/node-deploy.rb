@@ -13,7 +13,7 @@ respawn
 respawn limit 99 5
 
 script
-    exec su -c 'NODE_ENV=production {{node_binary}} {{current_path}}/{{app_command}}' deploy 2>&1 >> {{shared_path}}/{{application}}.log
+    exec su -c 'NODE_ENV={{node_env}} {{node_binary}} {{current_path}}/{{app_command}}' deploy 2>&1 >> {{shared_path}}/{{application}}.log
 end script
 EOD
 
@@ -33,6 +33,7 @@ Capistrano::Configuration.instance(:must_exist).load do |configuration|
   set :application, package_json["name"] unless defined? application
   set :app_command, package_json["main"] || "index.js" unless defined? app_command
   set :node_binary, "/usr/bin/node" unless defined? node_binary
+  set :node_env, "production" unless defined? node_env
 
   namespace :node do
     desc "Check required packages and install if packages are not installed"
