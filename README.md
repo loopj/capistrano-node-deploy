@@ -20,7 +20,7 @@ First install the gem:
 
 or add it to your `Gemfile` if you have one:
 
-    gem "capistrano-rails-deploy"
+    gem "capistrano-node-deploy"
 
 Now add the following to your `Capfile`
 
