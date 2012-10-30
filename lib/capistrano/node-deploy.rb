@@ -14,7 +14,7 @@ respawn
 respawn limit 99 5
 
 script
-    exec sudo -u {{node_user}} NODE_ENV={{node_env}} {{node_binary}} {{current_path}}/{{app_command}} 2>> {{shared_path}}/{{node_env}}.err.log 1>> {{shared_path}}/{{node_env}}.out.log
+    exec sudo -u {{node_user}} NODE_ENV={{node_env}} {{app_environment}} {{node_binary}} {{current_path}}/{{app_command}} 2>> {{shared_path}}/{{node_env}}.err.log 1>> {{shared_path}}/{{node_env}}.out.log
 end script
 EOD
 
@@ -46,6 +46,7 @@ Capistrano::Configuration.instance(:must_exist).load do |configuration|
 
   set :application, package_json["name"] unless defined? application
   set :app_command, package_json["main"] || "index.js" unless defined? app_command
+  set :app_environment, "" unless defined? app_environment
 
   set :node_binary, "/usr/bin/node" unless defined? node_binary
   set :node_env, "production" unless defined? node_env
