@@ -1,3 +1,4 @@
+require "digest/md5"
 require "railsless-deploy"
 require "multi_json"
 
@@ -21,6 +22,19 @@ def remote_file_exists?(full_path)
   'true' ==  capture("if [ -e #{full_path} ]; then echo 'true'; fi").strip
 end
 
+def remote_file_content_same_as?(full_path, content)
+  Digest::MD5.hexdigest(content) == capture("md5sum #{full_path} | awk '{ print $1 }'").strip
+end
+
+def remote_file_differs?(full_path, content)
+  exists = remote_file_exists?(full_path)
+  !exists || exists && !remote_file_content_same_as?(full_path, content)
+end
+
+def generate_upstart_config
+  UPSTART_TEMPLATE.gsub(/\{\{(.*?)\}\}/) { eval($1) }
+end
+
 Capistrano::Configuration.instance(:must_exist).load do |configuration|
   before "deploy", "deploy:create_release_dir"
   before "deploy", "node:check_upstart_config"
@@ -32,9 +46,13 @@ Capistrano::Configuration.instance(:must_exist).load do |configuration|
 
   set :application, package_json["name"] unless defined? application
   set :app_command, package_json["main"] || "index.js" unless defined? app_command
+
   set :node_binary, "/usr/bin/node" unless defined? node_binary
   set :node_env, "production" unless defined? node_env
   set :node_user, "deploy" unless defined? node_user
+
+  set :upstart_job_name, "#{application}-#{node_env}" unless defined? upstart_job_name
+  set :upstart_file_path, "/etc/init/#{upstart_job_name}.conf" unless defined? upstart_file_path
 
   namespace :node do
     desc "Check required packages and install if packages are not installed"
@@ -46,7 +64,7 @@ Capistrano::Configuration.instance(:must_exist).load do |configuration|
     end
 
     task :check_upstart_config do
-      create_upstart_config unless remote_file_exists?("/etc/init/#{application}.conf")
+      create_upstart_config if remote_file_differs?(upstart_file_path, generate_upstart_config)
     end
 
     desc "Create upstart script for this node app"
@@ -55,26 +73,26 @@ Capistrano::Configuration.instance(:must_exist).load do |configuration|
       temp_config_file_path = "#{shared_path}/#{application}.conf"
 
       # Generate and upload the upstart script
-      put UPSTART_TEMPLATE.gsub(/\{\{(.*?)\}\}/) { eval($1) }, temp_config_file_path
+      put generate_upstart_config, temp_config_file_path
 
       # Copy the script into place and make executable
-      sudo "cp #{temp_config_file_path} #{config_file_path}"
-      sudo "chmod +x #{config_file_path}"
+      sudo "cp #{temp_config_file_path} #{upstart_file_path}"
     end
 
     desc "Start the node application"
     task :start do
-      sudo "start #{application}"
+      sudo "start #{upstart_job_name}"
     end
 
     desc "Stop the node application"
     task :stop do
-      sudo "stop #{application}"
+      sudo "stop #{upstart_job_name}"
     end
 
     desc "Restart the node application"
     task :restart do
-      sudo "restart #{application} || sudo start #{application}"
+      sudo "stop #{upstart_job_name}"
+      sudo "start #{upstart_job_name}"
     end
   end
 
