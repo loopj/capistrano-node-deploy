@@ -51,16 +51,16 @@ Capistrano::Configuration.instance(:must_exist).load do |configuration|
   set :node_env, "production" unless defined? node_env
   set :node_user, "deploy" unless defined? node_user
 
-  set :upstart_job_name, "#{application}-#{node_env}" unless defined? upstart_job_name
-  set :upstart_file_path, "/etc/init/#{upstart_job_name}.conf" unless defined? upstart_file_path
+  set :upstart_job_name, lambda { "#{application}-#{node_env}" } unless defined? upstart_job_name
+  set :upstart_file_path, lambda { "/etc/init/#{upstart_job_name}.conf" } unless defined? upstart_file_path
 
   namespace :node do
     desc "Check required packages and install if packages are not installed"
     task :install_packages do
       run "mkdir -p #{shared_path}/node_modules"
-      run "cp #{current_path}/package.json #{shared_path}"
+      run "cp #{release_path}/package.json #{shared_path}"
       run "cd #{shared_path} && npm install"
-      run "ln -s #{shared_path}/node_modules #{current_path}/node_modules"
+      run "ln -s #{shared_path}/node_modules #{release_path}/node_modules"
     end
 
     task :check_upstart_config do
@@ -91,7 +91,7 @@ Capistrano::Configuration.instance(:must_exist).load do |configuration|
 
     desc "Restart the node application"
     task :restart do
-      sudo "stop #{upstart_job_name}"
+      sudo "stop #{upstart_job_name}; true"
       sudo "start #{upstart_job_name}"
     end
   end
