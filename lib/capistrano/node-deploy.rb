@@ -14,7 +14,7 @@ respawn
 respawn limit 99 5
 
 script
-    exec sudo -u {{node_user}} NODE_ENV={{node_env}} {{app_environment}} {{node_binary}} {{current_path}}/{{app_command}} 2>> {{shared_path}}/{{node_env}}.err.log 1>> {{shared_path}}/{{node_env}}.out.log
+    cd {{current_path}} && exec sudo -u {{node_user}} NODE_ENV={{node_env}} {{app_environment}} {{node_binary}} {{current_path}}/{{app_command}} 2>> {{shared_path}}/{{node_env}}.err.log 1>> {{shared_path}}/{{node_env}}.out.log
 end script
 EOD
 
@@ -59,7 +59,7 @@ Capistrano::Configuration.instance(:must_exist).load do |configuration|
     task :install_packages do
       run "mkdir -p #{shared_path}/node_modules"
       run "cp #{release_path}/package.json #{shared_path}"
-      run "cd #{shared_path} && npm install"
+      run "cd #{shared_path} && npm install #{(node_env == 'production') ? '--production' : ''}"
       run "ln -s #{shared_path}/node_modules #{release_path}/node_modules"
     end
 
