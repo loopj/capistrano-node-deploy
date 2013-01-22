@@ -14,7 +14,7 @@ respawn
 respawn limit 99 5
 
 script
-    cd {{current_path}} && exec sudo -u {{node_user}} NODE_ENV={{node_env}} {{app_environment}} {{node_binary}} {{current_path}}/{{app_command}} 2>> {{shared_path}}/{{node_env}}.err.log 1>> {{shared_path}}/{{node_env}}.out.log
+    cd {{current_path}} NODE_ENV={{node_env}} {{app_environment}} {{node_binary}} {{current_path}}/{{app_command}} 2>> {{shared_path}}/{{node_env}}.err.log 1>> {{shared_path}}/{{node_env}}.out.log
 end script
 EOD
 
@@ -76,23 +76,23 @@ Capistrano::Configuration.instance(:must_exist).load do |configuration|
       put generate_upstart_config, temp_config_file_path
 
       # Copy the script into place and make executable
-      sudo "cp #{temp_config_file_path} #{upstart_file_path}"
+      "cp #{temp_config_file_path} #{upstart_file_path}"
     end
 
     desc "Start the node application"
     task :start do
-      sudo "start #{upstart_job_name}"
+      "start #{upstart_job_name}"
     end
 
     desc "Stop the node application"
     task :stop do
-      sudo "stop #{upstart_job_name}"
+      "stop #{upstart_job_name}"
     end
 
     desc "Restart the node application"
     task :restart do
-      sudo "stop #{upstart_job_name}; true"
-      sudo "start #{upstart_job_name}"
+      "stop #{upstart_job_name}; true"
+      "start #{upstart_job_name}"
     end
   end
 
