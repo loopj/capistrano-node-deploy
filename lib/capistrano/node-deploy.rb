@@ -16,6 +16,16 @@ respawn limit 99 5
 script
     cd {{current_path}} && exec sudo -u {{node_user}} NODE_ENV={{node_env}} {{app_environment}} {{node_binary}} {{current_path}}/{{app_command}} 2>> {{shared_path}}/{{node_env}}.err.log 1>> {{shared_path}}/{{node_env}}.out.log
 end script
+
+post-start script
+    PID=`status {{upstart_job_name}} | egrep -oi '([0-9]+)$' | head -n1`
+    echo $PID > {{shared_path}}/pids/{{application}}.pid
+end script
+
+post-stop script
+    rm -f {{shared_path}}/pids/{{application}}.pid
+end script
+
 EOD
 
 def remote_file_exists?(full_path)
