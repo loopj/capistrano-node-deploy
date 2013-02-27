@@ -53,7 +53,7 @@ script
     cd #{current_path} && exec sudo -u #{node_user} NODE_ENV=#{node_env} #{app_environment} #{node_binary} #{current_path}/#{app_command} 2>> #{shared_path}/#{node_env}.err.log 1>> #{shared_path}/#{node_env}.out.log
 end script
 EOD
-  } unless defined? upstart_file_contents
+  }
 
 
   namespace :node do
