@@ -37,7 +37,7 @@ Capistrano::Configuration.instance(:must_exist).load do |configuration|
 
   set :upstart_job_name, lambda { "#{application}-#{node_env}" } unless defined? upstart_job_name
   set :upstart_file_path, lambda { "/etc/init/#{upstart_job_name}.conf" } unless defined? upstart_file_path
-  set :upstart_file_contents, lambda {
+  _cset(:upstart_file_contents) {
 <<EOD
 #!upstart
 description "#{application} node app"
