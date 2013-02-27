@@ -71,7 +71,6 @@ EOD
 
     desc "Create upstart script for this node app"
     task :create_upstart_config do
-      config_file_path = "/etc/init/#{application}.conf"
       temp_config_file_path = "#{shared_path}/#{application}.conf"
 
       # Generate and upload the upstart script
