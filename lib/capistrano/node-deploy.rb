@@ -15,10 +15,6 @@ def remote_file_differs?(full_path, content)
   !exists || exists && !remote_file_content_same_as?(full_path, content)
 end
 
-def generate_upstart_config
-  UPSTART_TEMPLATE.gsub(/\{\{(.*?)\}\}/) { eval($1) }
-end
-
 Capistrano::Configuration.instance(:must_exist).load do |configuration|
   before "deploy", "deploy:create_release_dir"
   before "deploy", "node:check_upstart_config"
