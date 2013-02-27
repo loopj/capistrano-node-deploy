@@ -2,22 +2,6 @@ require "digest/md5"
 require "railsless-deploy"
 require "multi_json"
 
-UPSTART_TEMPLATE = <<EOD
-#!upstart
-description "{{application}} node app"
-author      "capistrano"
-
-start on (filesystem and net-device-up IFACE=lo)
-stop on shutdown
-
-respawn
-respawn limit 99 5
-
-script
-    cd {{current_path}} && exec sudo -u {{node_user}} NODE_ENV={{node_env}} {{app_environment}} {{node_binary}} {{current_path}}/{{app_command}} 2>> {{shared_path}}/{{node_env}}.err.log 1>> {{shared_path}}/{{node_env}}.out.log
-end script
-EOD
-
 def remote_file_exists?(full_path)
   'true' ==  capture("if [ -e #{full_path} ]; then echo 'true'; fi").strip
 end
@@ -43,16 +27,34 @@ Capistrano::Configuration.instance(:must_exist).load do |configuration|
 
   package_json = MultiJson.load(File.open("package.json").read) rescue {}
 
-  set :application, package_json["name"] unless defined? application
-  set :app_command, package_json["main"] || "index.js" unless defined? app_command
-  set :app_environment, "" unless defined? app_environment
+  _cset :application, package_json["name"] 
+  _cset :app_command, package_json["main"] || "index.js"
+  _cset :app_environment, ""
 
-  set :node_binary, "/usr/bin/node" unless defined? node_binary
-  set :node_env, "production" unless defined? node_env
-  set :node_user, "deploy" unless defined? node_user
+  _cset :node_binary, "/usr/bin/node"
+  _cset :node_env, "production"
+  _cset :node_user, "deploy"
 
-  set :upstart_job_name, lambda { "#{application}-#{node_env}" } unless defined? upstart_job_name
-  set :upstart_file_path, lambda { "/etc/init/#{upstart_job_name}.conf" } unless defined? upstart_file_path
+  _cset(:upstart_job_name) { "#{application}-#{node_env}" }
+  _cset(:upstart_file_path) { "/etc/init/#{upstart_job_name}.conf" }
+  _cset(:upstart_file_contents) {
+<<EOD
+#!upstart
+description "#{application} node app"
+author      "capistrano"
+
+start on (filesystem and net-device-up IFACE=lo)
+stop on shutdown
+
+respawn
+respawn limit 99 5
+
+script
+    cd #{current_path} && exec sudo -u #{node_user} NODE_ENV=#{node_env} #{app_environment} #{node_binary} #{current_path}/#{app_command} 2>> #{shared_path}/#{node_env}.err.log 1>> #{shared_path}/#{node_env}.out.log
+end script
+EOD
+  }
+
 
   namespace :node do
     desc "Check required packages and install if packages are not installed"
@@ -64,16 +66,15 @@ Capistrano::Configuration.instance(:must_exist).load do |configuration|
     end
 
     task :check_upstart_config do
-      create_upstart_config if remote_file_differs?(upstart_file_path, generate_upstart_config)
+      create_upstart_config if remote_file_differs?(upstart_file_path, upstart_file_contents)
     end
 
     desc "Create upstart script for this node app"
     task :create_upstart_config do
-      config_file_path = "/etc/init/#{application}.conf"
       temp_config_file_path = "#{shared_path}/#{application}.conf"
 
       # Generate and upload the upstart script
-      put generate_upstart_config, temp_config_file_path
+      put upstart_file_contents, temp_config_file_path
 
       # Copy the script into place and make executable
       sudo "cp #{temp_config_file_path} #{upstart_file_path}"
