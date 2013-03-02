@@ -39,7 +39,7 @@ Capistrano::Configuration.instance(:must_exist).load do |configuration|
 description "#{application} node app"
 author      "capistrano"
 
-start on (filesystem and net-device-up IFACE=lo)
+start on runlevel [2345]
 stop on shutdown
 
 respawn
