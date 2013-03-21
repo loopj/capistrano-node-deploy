@@ -23,16 +23,16 @@ Capistrano::Configuration.instance(:must_exist).load do |configuration|
 
   package_json = MultiJson.load(File.open("package.json").read) rescue {}
 
-  _cset :application, package_json["name"] 
-  _cset :app_command, package_json["main"] || "index.js"
-  _cset :app_environment, ""
+  set :application, package_json["name"] unless defined? application
+  set :app_command, package_json["main"] || "index.js" unless defined? app_command
+  set :app_environment, "" unless defined? app_environment
 
-  _cset :node_binary, "/usr/bin/node"
-  _cset :node_env, "production"
-  _cset :node_user, "deploy"
+  set :node_binary, "/usr/bin/node" unless defined? node_binary
+  set :node_env, "production" unless defined? node_env
+  set :node_user, "deploy" unless defined? node_user
 
-  _cset(:upstart_job_name) { "#{application}-#{node_env}" }
-  _cset(:upstart_file_path) { "/etc/init/#{upstart_job_name}.conf" }
+  set :upstart_job_name, lambda { "#{application}-#{node_env}" } unless defined? upstart_job_name
+  set :upstart_file_path, lambda { "/etc/init/#{upstart_job_name}.conf" } unless defined? upstart_file_path
   _cset(:upstart_file_contents) {
 <<EOD
 #!upstart
