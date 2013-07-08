@@ -9,7 +9,7 @@ Features
 - Installs node packages (`npm install`) during deploys, using a shared folder for speed
 - Automatically creates upstart scripts for your node apps
 - Provides tasks for starting (`cap node:start`) and stopping (`cap node:stop`) your node app
-
+- Forever functionality and remote monitor (`cap node:status`)
 
 Usage
 -----
@@ -64,6 +64,21 @@ set :node_user, "james"
 
 # Set the name of the upstart command (defaults to #{application}-#{node_env})
 set :upstart_job_name, "myserver"
+
+#Forever related settings
+
+# set to forever to use forever, defaults to upstart
+set :run_method, "forever"
+
+#Time to wait (millis) between launches of a spinning script.
+set :spin_sleep_time, "1000"
+
+#Minimum uptime (millis) for a script to not be considered "spinning"
+set :min_up_time, "1000"
+
+#Only run the specified script MAX times
+set :max_run, "5"
+
 ```
 
 
