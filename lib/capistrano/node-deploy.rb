@@ -16,6 +16,7 @@ def remote_file_differs?(full_path, content)
 end
 
 Capistrano::Configuration.instance(:must_exist).load do |configuration|
+  default_run_options[:pty] = true
   before "deploy", "deploy:create_release_dir"
   before "deploy", "node:check_upstart_config"
   after "deploy:update", "node:install_packages", "node:restart"
