@@ -50,6 +50,12 @@ script
     cd #{current_path} && exec sudo -u #{node_user} NODE_ENV=#{node_env} #{app_environment} #{node_binary} #{current_path}/#{app_command} 2>> #{shared_path}/#{node_env}.err.log 1>> #{shared_path}/#{node_env}.out.log
 end script
 EOD
+
+  #Forever related settings
+  set :run_method, "upstart" unless defined? run_method
+  set :spin_sleep_time, "1000" unless defined? spin_sleep_time
+  set :min_up_time, "1000" unless defined? min_up_time
+  set :max_run, "5" unless defined? max_run
   }
 
 
@@ -78,20 +84,37 @@ EOD
       sudo "cp #{temp_config_file_path} #{upstart_file_path}"
     end
 
+    desc "Check the status of forever"
+    task :status do
+      run "forever list"
+    end
+
     desc "Start the node application"
     task :start do
-      sudo "start #{upstart_job_name}"
+      if run_method == 'forever'
+        run "cd #{current_path} && forever -c '#{node_binary}' -m #{max_run} --minUptime #{min_up_time} --spinSleepTime #{spin_sleep_time} -o #{shared_path}/console.log -e #{shared_path}/error.log start #{current_path}/#{app_command}"
+      else
+        sudo "start #{upstart_job_name}"
+      end
     end
 
     desc "Stop the node application"
     task :stop do
-      sudo "stop #{upstart_job_name}"
+      if run_method == 'forever'
+        run "forever stop #{current_path}/#{app_command}"
+      else
+        sudo "stop #{upstart_job_name}"
+      end
     end
 
     desc "Restart the node application"
     task :restart do
-      sudo "stop #{upstart_job_name}; true"
-      sudo "start #{upstart_job_name}"
+      if run_method == 'forever'
+        run "forever restart #{current_path}/#{app_command}"
+      else
+        sudo "stop #{upstart_job_name}; true"
+        sudo "start #{upstart_job_name}"
+      end
     end
   end
 
