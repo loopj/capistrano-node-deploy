@@ -65,7 +65,7 @@ EOD
       run "mkdir -p #{shared_path}/node_modules"
       run "cp #{release_path}/package.json #{shared_path}"
       run "cp #{release_path}/npm-shrinkwrap.json #{shared_path}"
-      run "cd #{shared_path} && npm install #{(node_env == 'production') ? '--dev' : ''} --loglevel warn"
+      run "cd #{shared_path} && npm install #{(node_env != 'production') ? '--dev' : ''} --loglevel warn"
       run "ln -s #{shared_path}/node_modules #{release_path}/node_modules"
     end
 
