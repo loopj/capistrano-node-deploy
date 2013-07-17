@@ -16,6 +16,7 @@ def remote_file_differs?(full_path, content)
 end
 
 Capistrano::Configuration.instance(:must_exist).load do |configuration|
+  default_run_options[:pty] = true
   before "deploy", "deploy:create_release_dir"
   before "deploy", "node:check_upstart_config"
   after "deploy:update", "node:install_packages", "node:restart"
@@ -58,7 +59,7 @@ EOD
       run "mkdir -p #{shared_path}/node_modules"
       run "cp #{release_path}/package.json #{shared_path}"
       run "cp #{release_path}/npm-shrinkwrap.json #{shared_path}"
-      run "cd #{shared_path} && npm install #{(node_env == 'production') ? '--production' : ''} --loglevel warn"
+      run "cd #{shared_path} && npm install #{(node_env != 'production') ? '--dev' : ''} --loglevel warn"
       run "ln -s #{shared_path}/node_modules #{release_path}/node_modules"
     end
 
