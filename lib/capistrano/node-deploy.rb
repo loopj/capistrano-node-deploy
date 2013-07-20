@@ -3,11 +3,19 @@ require "railsless-deploy"
 require "multi_json"
 
 def remote_file_exists?(full_path)
-  'true' ==  capture("if [ -e #{full_path} ]; then echo 'true'; fi").strip
+  results = []
+  invoke_command("if [ -e '#{full_path}' ]; then echo -n 'true'; fi") do |ch, stream, out|
+    results << (out == 'true')
+  end
+  results == [true]
 end
 
 def remote_file_content_same_as?(full_path, content)
-  Digest::MD5.hexdigest(content) == capture("md5sum #{full_path} | awk '{ print $1 }'").strip
+  results = []
+  invoke_command("md5sum #{full_path} | awk '{ print $1 }'") do |ch, stream, out|
+    results << (out == Digest::MD5.hexdigest(content))
+  end
+  results == [true]
 end
 
 def remote_file_differs?(full_path, content)
