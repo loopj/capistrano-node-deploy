@@ -40,6 +40,9 @@ Capistrano::Configuration.instance(:must_exist).load do |configuration|
   set :node_env, "production" unless defined? node_env
   set :node_user, "deploy" unless defined? node_user
 
+  set :stdout_log_path, lambda { "#{shared_path}/log/#{node_env}.out.log" }
+  set :stderr_log_path, lambda { "#{shared_path}/log/#{node_env}.err.log" }
+
   set :upstart_job_name, lambda { "#{application}-#{node_env}" } unless defined? upstart_job_name
   set :upstart_file_path, lambda { "/etc/init/#{upstart_job_name}.conf" } unless defined? upstart_file_path
   _cset(:upstart_file_contents) {
@@ -55,7 +58,7 @@ respawn
 respawn limit 99 5
 
 script
-    cd #{current_path} && exec sudo -u #{node_user} NODE_ENV=#{node_env} #{app_environment} #{node_binary} #{current_path}/#{app_command} 2>> #{shared_path}/#{node_env}.err.log 1>> #{shared_path}/#{node_env}.out.log
+    cd #{current_path} && exec sudo -u #{node_user} NODE_ENV=#{node_env} #{app_environment} #{node_binary} #{current_path}/#{app_command} 2>> #{stderr_log_path} 1>> #{stdout_log_path}
 end script
 EOD
   }
