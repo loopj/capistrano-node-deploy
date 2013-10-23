@@ -27,7 +27,8 @@ Capistrano::Configuration.instance(:must_exist).load do |configuration|
   default_run_options[:pty] = true
   before "deploy", "deploy:create_release_dir"
   before "deploy", "node:check_upstart_config"
-  after "deploy:update", "node:install_packages", "node:restart"
+  before "deploy:create_symlink", "node:install_packages"
+  after "deploy:update", "node:restart"
   after "deploy:rollback", "node:restart"
 
   package_json = MultiJson.load(File.open("package.json").read) rescue {}
@@ -67,11 +68,7 @@ EOD
   namespace :node do
     desc "Check required packages and install if packages are not installed"
     task :install_packages do
-      run "mkdir -p #{shared_path}/node_modules"
-      run "cp #{release_path}/package.json #{shared_path}"
-      run "cp #{release_path}/npm-shrinkwrap.json #{shared_path}" if remote_file_exists?("#{release_path}/npm-shrinkwrap.json")
-      run "cd #{shared_path} && npm install --loglevel warn"
-      run "ln -s #{shared_path}/node_modules #{release_path}/node_modules"
+      run "cd #{release_path} && npm install --loglevel warn"
     end
 
     task :check_upstart_config do
