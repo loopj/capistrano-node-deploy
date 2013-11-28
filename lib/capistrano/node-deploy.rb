@@ -30,6 +30,7 @@ Capistrano::Configuration.instance(:must_exist).load do |configuration|
   before "deploy:create_symlink", "node:install_packages"
   after "deploy:update", "node:restart"
   after "deploy:rollback", "node:restart"
+  after "node:restart", "deploy:cleanup"
 
   package_json = MultiJson.load(File.open("package.json").read) rescue {}
 
