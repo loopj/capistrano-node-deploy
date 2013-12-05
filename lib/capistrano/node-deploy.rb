@@ -68,7 +68,7 @@ EOD
   namespace :node do
     desc "Check required packages and install if packages are not installed"
     task :install_packages do
-      run "cp -r #{previous_release}/node_modules #{release_path}"
+      run "cp -r #{previous_release}/node_modules #{release_path}" if previous_release
       run "cd #{release_path} && npm install --loglevel warn"
     end
 
