@@ -1,6 +1,6 @@
 source "http://rubygems.org"
 
-gem "railsless-deploy"
+gem "railsless-deploy", ">= 1.1.0"
 gem "multi_json", "~> 1.3.6"
 
 group :development do
