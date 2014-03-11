@@ -38,7 +38,6 @@ Capistrano::Configuration.instance(:must_exist).load do |configuration|
   set :app_environment, "" unless defined? app_environment
 
   set :node_binary, "/usr/bin/node" unless defined? node_binary
-  set :npm_binary, "/usr/bin/npm" unless defined? npm_binary
   set :node_env, "production" unless defined? node_env
   set :node_user, "deploy" unless defined? node_user
   set :kill_timeout, 5 unless defined? kill_timeout
@@ -71,11 +70,8 @@ EOD
   namespace :node do
     desc "Check required packages and install if packages are not installed"
     task :install_packages do
-      run "mkdir -p #{shared_path}/node_modules"
-      run "cp #{release_path}/package.json #{shared_path}"
-      run "cp #{release_path}/npm-shrinkwrap.json #{shared_path}" if remote_file_exists?("#{release_path}/npm-shrinkwrap.json")
-      run "cd #{shared_path} && #{npm_binary} install --loglevel warn"
-      run "ln -s #{shared_path}/node_modules #{release_path}/node_modules"
+      run "cp -r #{previous_release}/node_modules #{release_path}" if previous_release
+      run "cd #{release_path} && npm install --loglevel warn"
     end
 
     task :check_upstart_config do
