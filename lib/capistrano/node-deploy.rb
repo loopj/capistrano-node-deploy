@@ -41,6 +41,7 @@ Capistrano::Configuration.instance(:must_exist).load do |configuration|
   set :npm_binary, "/usr/bin/npm" unless defined? npm_binary
   set :node_env, "production" unless defined? node_env
   set :node_user, "deploy" unless defined? node_user
+  set :kill_timeout, 5 unless defined? kill_timeout
 
   set :stdout_log_path, lambda { "#{shared_path}/log/#{node_env}.out.log" }
   set :stderr_log_path, lambda { "#{shared_path}/log/#{node_env}.err.log" }
@@ -58,6 +59,7 @@ stop on shutdown
 
 respawn
 respawn limit 99 5
+kill timeout #{kill_timeout}
 
 script
     cd #{current_path} && exec sudo -u #{node_user} NODE_ENV=#{node_env} #{app_environment} #{node_binary} #{current_path}/#{app_command} 2>> #{stderr_log_path} 1>> #{stdout_log_path}
