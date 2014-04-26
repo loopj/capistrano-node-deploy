@@ -13,7 +13,7 @@ end
 def remote_file_content_same_as?(full_path, content)
   results = []
   invoke_command("md5sum #{full_path} | awk '{ print $1 }'") do |ch, stream, out|
-    results << (out == Digest::MD5.hexdigest(content))
+    results << (out.strip == Digest::MD5.hexdigest(content).strip)
   end
   results == [true]
 end
