@@ -71,7 +71,7 @@ EOD
     desc "Check required packages and install if packages are not installed"
     task :install_packages do
       run "mkdir -p #{previous_release}/node_modules ; cp -r #{previous_release}/node_modules #{release_path}" if previous_release
-      run "cd #{release_path} && npm install --loglevel warn"
+      run "cd #{release_path} && yarn install --production=true --frozen-lockfile"
     end
 
     task :check_upstart_config do
