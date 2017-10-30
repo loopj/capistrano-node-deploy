@@ -6,7 +6,7 @@ Capistrano recipe for deploying node.js apps.
 Features
 --------
 - Provides `cap deploy` functionality for your node app
-- Installs node packages (`npm install`) during deploys, using a shared folder for speed
+- Installs node packages (`yarn`) during deploys, using a shared folder for speed
 - Automatically creates upstart scripts for your node apps
 - Provides tasks for starting (`cap node:start`) and stopping (`cap node:stop`) your node app
 
